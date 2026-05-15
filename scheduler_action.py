@@ -20,7 +20,7 @@ from datetime import date, datetime, timedelta
 # CONFIGURAÇÕES
 # ─────────────────────────────────────────────
 
-CSV_URL = "https://raw.githubusercontent.com/Franmoraes01/painel-mlp-meli/main/liberacao_pacotes.csv"
+CSV_URL = "https://drive.google.com/uc?export=download&id=1--x4nSTe-9T2I1WqoPdZR3-Rc3YR0dz4"
 
 # Fallback: caminho local se rodar localmente
 CSV_PATH_LOCAL = r"G:\Drives compartilhados\UTR_OTR\Liberação_de_pacotes\Liberção_de_pacotes.csv"
