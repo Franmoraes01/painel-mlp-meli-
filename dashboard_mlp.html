@@ -6,454 +6,207 @@
 <title>Dashboard MLP — Justificativas</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --blue: #0070F3;
-    --blue-dim: #005ACC;
-    --bg: #F5F7FA;
-    --surface: #FFFFFF;
-    --surface2: #F0F2F5;
-    --border: #E1E5EB;
-    --text: #1A1D23;
-    --text-dim: #6B7280;
-    --text-muted: #C0C4CC;
-    --green: #10B981;
-    --red: #EF4444;
-    --orange: #F59E0B;
-    --radius: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; }
-
-  header {
-    background: var(--surface);
-    border-bottom: 2px solid var(--blue);
-    padding: 0 24px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
-  }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-badge { background: var(--blue); color: #fff; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 4px; letter-spacing: 1px; }
-  .logo-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--text); }
-  .header-right { display: flex; align-items: center; gap: 14px; }
-  .update-info { font-size: 11px; color: var(--text-dim); }
-  .update-info span { color: var(--blue); font-weight: 600; }
-  .countdown { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-dim); }
-  .countdown-bar { width: 60px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .countdown-fill { height: 100%; background: var(--blue); transition: width 1s linear; }
-  .btn { background: var(--blue); border: none; color: #fff; font-family: 'DM Mono', monospace; font-size: 11px; padding: 7px 14px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
-  .btn:hover { background: var(--blue-dim); }
-  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-family: 'DM Mono', monospace; font-size: 11px; padding: 7px 14px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-  .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
-
-  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
-
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
-  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
-  .kpi-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-  .kpi-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--blue); line-height: 1; margin-bottom: 3px; }
-  .kpi-value.green  { color: var(--green); }
-  .kpi-value.orange { color: var(--orange); }
-  .kpi-sub { font-size: 11px; color: var(--text-muted); }
-
-  .filters { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: flex-end; }
-  .filter-group { display: flex; flex-direction: column; gap: 4px; }
-  .filter-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .filter-input, .filter-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; padding: 7px 12px; border-radius: 6px; outline: none; transition: border-color 0.2s; min-width: 150px; }
-  .filter-input:focus, .filter-select:focus { border-color: var(--blue); }
-  .badge-count { background: var(--surface); border: 1px solid var(--border); padding: 7px 14px; border-radius: 6px; font-size: 12px; color: var(--text-dim); }
-  .badge-count span { color: var(--blue); font-weight: 600; }
-
-  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.04); }
-  .table-header-bar { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .table-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
-  .table-scroll { overflow-x: auto; max-height: calc(100vh - 360px); overflow-y: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead { position: sticky; top: 0; z-index: 10; }
-  th { background: var(--surface2); padding: 10px 14px; text-align: left; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); border-bottom: 1px solid var(--border); white-space: nowrap; }
-  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #F8FAFF; }
-
-  .pedido-cell { font-weight: 600; color: var(--blue); font-size: 13px; }
-  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; white-space: nowrap; }
-  .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .s-delivered { background: #D1FAE5; color: #065F46; }
-  .s-delivered::before { background: var(--green); }
-  .s-transit   { background: #DBEAFE; color: #1E40AF; }
-  .s-transit::before   { background: var(--blue); }
-  .s-pending   { background: #FEF3C7; color: #92400E; }
-  .s-pending::before   { background: var(--orange); }
-  .s-error     { background: #FEE2E2; color: #991B1B; }
-  .s-error::before     { background: var(--red); }
-  .s-default   { background: var(--surface2); color: var(--text-dim); }
-  .s-default::before   { background: var(--text-muted); }
-
-  /* Campo de justificativa inline */
-  .just-wrap { display: flex; align-items: center; gap: 8px; min-width: 280px; }
-  .just-input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-    min-width: 0;
-  }
-  .just-input:focus { border-color: var(--blue); background: #fff; }
-  .just-input.saved { border-color: var(--green); background: #F0FDF4; }
-  .just-input.error { border-color: var(--red); }
-
-  .btn-save {
-    background: var(--blue);
-    border: none;
-    color: #fff;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .btn-save:hover { background: var(--blue-dim); }
-  .btn-save.loading { opacity: 0.6; cursor: default; }
-  .btn-save.ok { background: var(--green); }
-
-  .just-time { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
-
-  .state-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; gap: 14px; color: var(--text-dim); }
-  .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; font-size: 12px; padding: 12px 18px; border-radius: 8px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.success { background: var(--green); }
-  .toast.error   { background: var(--red); }
-
-  .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px; border-top: 1px solid var(--border); }
-  .page-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); font-family: 'DM Mono', monospace; font-size: 12px; padding: 5px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
-  .page-btn:hover, .page-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-  .page-btn:disabled { opacity: 0.3; cursor: default; }
+  :root{--blue:#0070F3;--blue-dim:#005ACC;--bg:#F5F7FA;--surface:#FFF;--surface2:#F0F2F5;--border:#E1E5EB;--text:#1A1D23;--text-dim:#6B7280;--text-muted:#C0C4CC;--green:#10B981;--red:#EF4444;--orange:#F59E0B;--radius:10px;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;}
+  header{background:var(--surface);border-bottom:2px solid var(--blue);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-badge{background:var(--blue);color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;padding:4px 10px;border-radius:4px;letter-spacing:1px;}
+  .logo-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;}
+  .header-right{display:flex;align-items:center;gap:14px;}
+  .update-info{font-size:11px;color:var(--text-dim);}
+  .update-info span{color:var(--blue);font-weight:600;}
+  .countdown{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);}
+  .countdown-bar{width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .countdown-fill{height:100%;background:var(--blue);transition:width 1s linear;}
+  .btn{background:var(--blue);border:none;color:#fff;font-family:'DM Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;cursor:pointer;transition:background .2s;}
+  .btn:hover{background:var(--blue-dim);}
+  main{padding:24px;max-width:1200px;margin:0 auto;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .kpi-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+  .kpi-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--blue);line-height:1;margin-bottom:3px;}
+  .kpi-value.g{color:var(--green);}.kpi-value.o{color:var(--orange);}
+  .kpi-sub{font-size:11px;color:var(--text-muted);}
+  .filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:flex-end;}
+  .fg{display:flex;flex-direction:column;gap:4px;}
+  .fl{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+  .fi,.fsel{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:7px 12px;border-radius:6px;outline:none;transition:border-color .2s;min-width:150px;}
+  .fi:focus,.fsel:focus{border-color:var(--blue);}
+  .bc{background:var(--surface);border:1px solid var(--border);padding:7px 14px;border-radius:6px;font-size:12px;color:var(--text-dim);}
+  .bc span{color:var(--blue);font-weight:600;}
+  .tw{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+  .thb{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .tt{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+  .ts{overflow-x:auto;max-height:calc(100vh - 360px);overflow-y:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  thead{position:sticky;top:0;z-index:10;}
+  th{background:var(--surface2);padding:10px 14px;text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}tr:hover td{background:#F8FAFF;}
+  .pc{font-weight:600;color:var(--blue);font-size:13px;}
+  .sb{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;white-space:nowrap;}
+  .sb::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .sd{background:#D1FAE5;color:#065F46;}.sd::before{background:var(--green);}
+  .st{background:#DBEAFE;color:#1E40AF;}.st::before{background:var(--blue);}
+  .sp{background:#FEF3C7;color:#92400E;}.sp::before{background:var(--orange);}
+  .se{background:#FEE2E2;color:#991B1B;}.se::before{background:var(--red);}
+  .sdf{background:var(--surface2);color:var(--text-dim);}.sdf::before{background:var(--text-muted);}
+  .jw{display:flex;align-items:center;gap:8px;min-width:260px;}
+  .ji{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);outline:none;transition:border-color .2s;min-width:0;}
+  .ji:focus{border-color:var(--blue);background:#fff;}.ji.saved{border-color:var(--green);background:#F0FDF4;}.ji.err{border-color:var(--red);}
+  .bs{background:var(--blue);border:none;color:#fff;font-family:'DM Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+  .bs:hover{background:var(--blue-dim);}.bs.ld{opacity:.6;cursor:default;}.bs.ok{background:var(--green);}
+  .jtime{font-size:10px;color:var(--text-muted);white-space:nowrap;}
+  .so{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:14px;color:var(--text-dim);}
+  .spi{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .pag{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;border-top:1px solid var(--border);}
+  .pb{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);font-family:'DM Mono',monospace;font-size:12px;padding:5px 12px;border-radius:4px;cursor:pointer;transition:all .15s;}
+  .pb:hover,.pb.act{background:var(--blue);color:#fff;border-color:var(--blue);}.pb:disabled{opacity:.3;cursor:default;}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;font-size:12px;padding:12px 18px;border-radius:8px;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateY(0);}.toast.ok{background:var(--green);}.toast.err{background:var(--red);}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo">
-    <span class="logo-badge">MLP</span>
-    <span class="logo-title">Painel de Justificativas</span>
-  </div>
+  <div class="logo"><span class="logo-badge">MLP</span><span class="logo-title">Painel de Justificativas</span></div>
   <div class="header-right">
-    <div class="countdown">
-      <span>atualiza em</span>
-      <div class="countdown-bar"><div class="countdown-fill" id="countdown-fill"></div></div>
-      <span id="countdown-timer">5:00</span>
-    </div>
-    <div class="update-info">Atualizado em <span id="last-update">—</span></div>
-    <button class="btn" onclick="fetchDados()">↺ Atualizar</button>
+    <div class="countdown"><span>atualiza em</span><div class="countdown-bar"><div class="countdown-fill" id="cf"></div></div><span id="ct">5:00</span></div>
+    <div class="update-info">Atualizado em <span id="lu">—</span></div>
+    <button class="btn" onclick="load()">↺ Atualizar</button>
   </div>
 </header>
-
 <main>
   <div class="kpi-grid">
-    <div class="kpi-card"><div class="kpi-label">Total Pacotes</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">no período</div></div>
-    <div class="kpi-card"><div class="kpi-label">Com Justificativa</div><div class="kpi-value green" id="kpi-com">—</div><div class="kpi-sub">preenchidas</div></div>
-    <div class="kpi-card"><div class="kpi-label">Sem Justificativa</div><div class="kpi-value orange" id="kpi-sem">—</div><div class="kpi-sub">pendentes</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Pacotes</div><div class="kpi-value" id="k1">—</div><div class="kpi-sub">no período</div></div>
+    <div class="kpi-card"><div class="kpi-label">Com Justificativa</div><div class="kpi-value g" id="k2">—</div><div class="kpi-sub">preenchidas</div></div>
+    <div class="kpi-card"><div class="kpi-label">Sem Justificativa</div><div class="kpi-value o" id="k3">—</div><div class="kpi-sub">pendentes</div></div>
   </div>
-
   <div class="filters">
-    <div class="filter-group">
-      <span class="filter-label">Buscar</span>
-      <input class="filter-input" id="filter-search" type="text" placeholder="Pedido, exchange point..." oninput="aplicarFiltros()">
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">Status</span>
-      <select class="filter-select" id="filter-status" onchange="aplicarFiltros()"><option value="">Todos</option></select>
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">Justificativa</span>
-      <select class="filter-select" id="filter-just" onchange="aplicarFiltros()">
-        <option value="">Todas</option>
-        <option value="nao">Sem justificativa</option>
-        <option value="sim">Com justificativa</option>
-      </select>
-    </div>
-    <div style="margin-left:auto">
-      <div class="badge-count">Exibindo <span id="count-filtered">0</span> de <span id="count-total">0</span></div>
-    </div>
+    <div class="fg"><span class="fl">Buscar</span><input class="fi" id="fs" type="text" placeholder="Pedido, exchange point..." oninput="filt()"></div>
+    <div class="fg"><span class="fl">Status</span><select class="fsel" id="fst" onchange="filt()"><option value="">Todos</option></select></div>
+    <div class="fg"><span class="fl">Justificativa</span><select class="fsel" id="fj" onchange="filt()"><option value="">Todas</option><option value="nao">Sem justificativa</option><option value="sim">Com justificativa</option></select></div>
+    <div style="margin-left:auto"><div class="bc">Exibindo <span id="cn">0</span> de <span id="ctt">0</span></div></div>
   </div>
-
-  <div class="table-wrap">
-    <div class="table-header-bar">
-      <span class="table-title">Pacotes para Justificar</span>
-      <span style="font-size:11px;color:var(--text-muted)">Hoje + Ontem</span>
+  <div class="tw">
+    <div class="thb"><span class="tt">Pacotes para Justificar</span><span style="font-size:11px;color:var(--text-muted)">Hoje + Ontem</span></div>
+    <div class="ts">
+      <table><thead><tr>
+        <th>Pedido</th><th>Exchange Point</th><th>Status</th><th>Sub-Status</th><th>Última Movimentação</th><th>Justificativa</th>
+      </tr></thead>
+      <tbody id="tb"><tr><td colspan="6"><div class="so"><div class="spi"></div><span>Carregando...</span></div></td></tr></tbody></table>
     </div>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Pedido</th>
-            <th>Exchange Point</th>
-            <th>Status</th>
-            <th>Sub-Status</th>
-            <th>Última Movimentação</th>
-            <th>Justificativa</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <tr><td colspan="6"><div class="state-overlay"><div class="spinner"></div><span>Carregando...</span></div></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="pagination" id="pagination"></div>
+    <div class="pag" id="pg"></div>
   </div>
 </main>
-
 <div class="toast" id="toast"></div>
-
 <script>
-// ── CONFIGURAÇÃO ────────────────────────────────────────────────
-const SERVER_URL    = 'https://bill-issn-warner-funny.trycloudflare.com';
-const JSONBIN_BIN   = '6a07081ac0954111d82939fe';
-const JSONBIN_KEY   = '$2a$10$hZ47nzJ7dwM3NltPWMVaQebMCGIz/E/4w0dq3SUqeySZ9POLqEqvW';
-const JSONBIN_URL   = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN}`;
-const REFRESH_MS    = 5 * 60 * 1000;
-const ROWS_PER_PAGE = 50;
+const BIN='6a07081ac0954111d82939fe',KEY='$2a$10$hZ47nzJ7dwM3NltPWMVaQebMCGIz/E/4w0dq3SUqeySZ9POLqEqvW';
+const BURL=`https://api.jsonbin.io/v3/b/${BIN}`;
+const RMS=5*60*1000,PP=50;
+let aR=[],fR=[],pg=1,cSec=RMS/1000,cInt=null;
+let jCache={},rec={};
 
-let allRows = [], filteredRows = [], currentPage = 1;
-let countdownSec = REFRESH_MS/1000, countdownInt = null;
-let justCache = {};   // cache local das justificativas
+const sc=s=>{s=(s||'').toLowerCase();if(s.includes('delivered'))return 'sd';if(s.includes('transit')||s.includes('route'))return 'st';if(s.includes('pending')||s.includes('waiting'))return 'sp';if(s.includes('error')||s.includes('problem')||s.includes('damage'))return 'se';return 'sdf';};
+const fd=v=>{if(!v)return '—';try{const d=new Date(v);return isNaN(d)?v:d.toLocaleString('pt-BR');}catch{return v;}};
 
-function statusClass(s) {
-  s = (s||'').toLowerCase();
-  if (s.includes('delivered')) return 's-delivered';
-  if (s.includes('transit')||s.includes('route')) return 's-transit';
-  if (s.includes('pending')||s.includes('waiting')) return 's-pending';
-  if (s.includes('error')||s.includes('problem')||s.includes('damage')) return 's-error';
-  return 's-default';
+async function load(){
+  try{
+    const r=await fetch(`${BURL}/latest`,{headers:{'X-Master-Key':KEY}});
+    const j=await r.json();
+    rec=j.record||{};jCache=rec.justificativas||{};
+    aR=(rec.dados||[]).map(row=>{row.JUSTIFICATIVA=jCache[String(row.PEDIDO||'')]||{};return row;});
+    document.getElementById('lu').textContent=rec.atualizado_em||'—';
+    popF();filt();kpis();resetCd();
+  }catch{toast('Erro ao buscar dados.','err');}
 }
 
-function fmtDate(val) {
-  if (!val) return '—';
-  try { const d=new Date(val); return isNaN(d)?val:d.toLocaleString('pt-BR'); } catch { return val; }
+function kpis(){
+  const t=aR.length,c=aR.filter(r=>r.JUSTIFICATIVA&&r.JUSTIFICATIVA.texto).length;
+  document.getElementById('k1').textContent=t;
+  document.getElementById('k2').textContent=c;
+  document.getElementById('k3').textContent=t-c;
 }
 
-// ── FETCH DADOS DO SERVIDOR ─────────────────────────────────────
-async function fetchDados() {
-  try {
-    const res  = await fetch(`${SERVER_URL}/api/dados`);
-    const json = await res.json();
-    allRows    = json.rows || [];
-    document.getElementById('last-update').textContent = json.atualizado_em || '—';
-
-    // Sincroniza justificativas do JSONBin
-    await syncJustificativas();
-
-    // Injeta justificativas nos rows
-    allRows.forEach(r => {
-      const p = String(r.PEDIDO||'');
-      r.JUSTIFICATIVA = justCache[p] || {};
-    });
-
-    popularFiltros();
-    aplicarFiltros();
-    atualizarKPIs();
-    resetCountdown();
-  } catch(e) {
-    mostrarToast('Erro ao conectar ao servidor.', 'error');
-  }
+function popF(){
+  const ss=[...new Set(aR.map(r=>r.Status).filter(Boolean))].sort();
+  const el=document.getElementById('fst'),cv=el.value;
+  el.innerHTML='<option value="">Todos</option>';
+  ss.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===cv)o.selected=true;el.appendChild(o);});
 }
 
-async function syncJustificativas() {
-  try {
-    const r = await fetch(`${JSONBIN_URL}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    const data = await r.json();
-    justCache = (data.record || {}).justificativas || {};
-  } catch(e) {
-    console.warn('Erro ao buscar justificativas:', e);
-  }
-}
-
-// ── SALVAR JUSTIFICATIVA ────────────────────────────────────────
-async function salvarJustificativa(pedido, texto, btnEl, inputEl) {
-  btnEl.textContent = '...';
-  btnEl.classList.add('loading');
-
-  try {
-    // Atualiza cache local
-    justCache[pedido] = { texto, atualizado_em: new Date().toLocaleString('pt-BR') };
-
-    // Monta payload completo e salva no JSONBin
-    const r = await fetch(`${JSONBIN_URL}/latest`, { headers: { 'X-Master-Key': JSONBIN_KEY } });
-    const data = await r.json();
-    const record = data.record || {};
-    record.justificativas = { ...(record.justificativas||{}), [pedido]: justCache[pedido] };
-
-    const r2 = await fetch(JSONBIN_URL, {
-      method: 'PUT',
-      headers: { 'X-Master-Key': JSONBIN_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(record)
-    });
-
-    if (r2.ok) {
-      btnEl.textContent = '✓';
-      btnEl.classList.remove('loading');
-      btnEl.classList.add('ok');
-      inputEl.classList.add('saved');
-      mostrarToast(`Pedido ${pedido} salvo!`, 'success');
-      atualizarKPIs();
-      setTimeout(() => {
-        btnEl.textContent = 'Salvar';
-        btnEl.classList.remove('ok');
-      }, 2000);
-    } else {
-      throw new Error('Falha ao salvar');
-    }
-  } catch(e) {
-    btnEl.textContent = 'Salvar';
-    btnEl.classList.remove('loading');
-    inputEl.classList.add('error');
-    mostrarToast('Erro ao salvar. Tente novamente.', 'error');
-    setTimeout(() => inputEl.classList.remove('error'), 2000);
-  }
-}
-
-// ── KPIs ────────────────────────────────────────────────────────
-function atualizarKPIs() {
-  const total = allRows.length;
-  const com   = allRows.filter(r=>r.JUSTIFICATIVA && r.JUSTIFICATIVA.texto).length;
-  document.getElementById('kpi-total').textContent = total;
-  document.getElementById('kpi-com').textContent   = com;
-  document.getElementById('kpi-sem').textContent   = total - com;
-}
-
-// ── FILTROS ─────────────────────────────────────────────────────
-function popularFiltros() {
-  const statuses = [...new Set(allRows.map(r=>r.Status).filter(Boolean))].sort();
-  const sel = document.getElementById('filter-status');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Todos</option>';
-  statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===cur)o.selected=true;sel.appendChild(o);});
-}
-
-function aplicarFiltros() {
-  const search = document.getElementById('filter-search').value.toLowerCase();
-  const status = document.getElementById('filter-status').value;
-  const just   = document.getElementById('filter-just').value;
-  filteredRows = allRows.filter(r=>{
-    if(search && ![r.PEDIDO,r.EXCHANGE_POINT,r.Status].some(v=>(v||'').toLowerCase().includes(search))) return false;
-    if(status && r.Status!==status) return false;
-    if(just==='sim' && !(r.JUSTIFICATIVA && r.JUSTIFICATIVA.texto)) return false;
-    if(just==='nao' &&  (r.JUSTIFICATIVA && r.JUSTIFICATIVA.texto)) return false;
+function filt(){
+  const s=document.getElementById('fs').value.toLowerCase();
+  const st=document.getElementById('fst').value,jf=document.getElementById('fj').value;
+  fR=aR.filter(r=>{
+    if(s&&![r.PEDIDO,r.EXCHANGE_POINT,r.Status].some(v=>(v||'').toLowerCase().includes(s)))return false;
+    if(st&&r.Status!==st)return false;
+    if(jf==='sim'&&!(r.JUSTIFICATIVA&&r.JUSTIFICATIVA.texto))return false;
+    if(jf==='nao'&&(r.JUSTIFICATIVA&&r.JUSTIFICATIVA.texto))return false;
     return true;
   });
-  currentPage = 1;
-  renderTabela();
-  document.getElementById('count-filtered').textContent = filteredRows.length;
-  document.getElementById('count-total').textContent    = allRows.length;
+  pg=1;render();
+  document.getElementById('cn').textContent=fR.length;document.getElementById('ctt').textContent=aR.length;
 }
 
-// ── RENDER ──────────────────────────────────────────────────────
-function renderTabela() {
-  const tbody = document.getElementById('table-body');
-  if (!filteredRows.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="state-overlay"><span style="font-size:32px;opacity:.4">📦</span><span>Nenhum pacote encontrado</span></div></td></tr>`;
-    document.getElementById('pagination').innerHTML = '';
-    return;
+async function salvar(pedido,texto,btn,inp){
+  btn.textContent='...';btn.classList.add('ld');
+  try{
+    jCache[pedido]={texto,atualizado_em:new Date().toLocaleString('pt-BR')};
+    const payload={...rec,justificativas:jCache};
+    const r=await fetch(BURL,{method:'PUT',headers:{'X-Master-Key':KEY,'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){
+      btn.textContent='✓';btn.classList.remove('ld');btn.classList.add('ok');
+      inp.classList.add('saved');
+      // Atualiza o row em memória
+      const row=aR.find(r=>String(r.PEDIDO)===pedido);
+      if(row)row.JUSTIFICATIVA=jCache[pedido];
+      toast(`Pedido ${pedido} salvo!`,'ok');kpis();
+      setTimeout(()=>{btn.textContent='Salvar';btn.classList.remove('ok');},2000);
+    }else throw new Error();
+  }catch{
+    btn.textContent='Salvar';btn.classList.remove('ld');
+    inp.classList.add('err');toast('Erro ao salvar.','err');
+    setTimeout(()=>inp.classList.remove('err'),2000);
   }
-  const start = (currentPage-1)*ROWS_PER_PAGE;
-  const slice = filteredRows.slice(start, start+ROWS_PER_PAGE);
+}
 
-  tbody.innerHTML = slice.map(r => {
-    const pedido = String(r.PEDIDO||'');
-    const j      = r.JUSTIFICATIVA || {};
-    const textoAtual = j.texto || '';
-    const inputId    = `just-${pedido}`;
-    const btnId      = `btn-${pedido}`;
-    const savedClass = textoAtual ? 'saved' : '';
-
+function render(){
+  const tb=document.getElementById('tb');
+  if(!fR.length){tb.innerHTML='<tr><td colspan="6"><div class="so"><span style="font-size:32px;opacity:.4">📦</span><span>Nenhum pacote encontrado</span></div></td></tr>';document.getElementById('pg').innerHTML='';return;}
+  const sl=fR.slice((pg-1)*PP,pg*PP);
+  tb.innerHTML=sl.map(r=>{
+    const p=String(r.PEDIDO||''),j=r.JUSTIFICATIVA||{},t=j.texto||'';
+    const iid=`ji${p}`,bid=`jb${p}`,sv=t?'saved':'';
     return `<tr>
-      <td class="pedido-cell">${pedido||'—'}</td>
+      <td class="pc">${p||'—'}</td>
       <td>${r.EXCHANGE_POINT||'—'}</td>
-      <td><span class="status-badge ${statusClass(r.Status)}">${r.Status||'—'}</span></td>
-      <td><span class="status-badge ${statusClass(r.Sub_Status)}">${r.Sub_Status||'—'}</span></td>
-      <td>${fmtDate(r.Data_Ultima_Movimentacao)}</td>
+      <td><span class="sb ${sc(r.Status)}">${r.Status||'—'}</span></td>
+      <td><span class="sb ${sc(r.Sub_Status)}">${r.Sub_Status||'—'}</span></td>
+      <td>${fd(r.Data_Ultima_Movimentacao)}</td>
       <td>
-        <div class="just-wrap">
-          <input
-            class="just-input ${savedClass}"
-            id="${inputId}"
-            type="text"
-            placeholder="Digite a justificativa..."
-            value="${textoAtual.replace(/"/g,'&quot;')}"
-            onkeydown="if(event.key==='Enter') document.getElementById('${btnId}').click()"
-          >
-          <button
-            class="btn-save"
-            id="${btnId}"
-            onclick="salvarJustificativa('${pedido}', document.getElementById('${inputId}').value, this, document.getElementById('${inputId}'))"
-          >Salvar</button>
+        <div class="jw">
+          <input class="ji ${sv}" id="${iid}" type="text" placeholder="Digite a justificativa..." value="${t.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')document.getElementById('${bid}').click()">
+          <button class="bs" id="${bid}" onclick="salvar('${p}',document.getElementById('${iid}').value,this,document.getElementById('${iid}'))">Salvar</button>
         </div>
-        ${j.atualizado_em ? `<div class="just-time">Salvo em ${j.atualizado_em}</div>` : ''}
+        ${j.atualizado_em?`<div class="jtime">Salvo em ${j.atualizado_em}</div>`:''}
       </td>
     </tr>`;
   }).join('');
-
-  renderPaginacao();
+  const tot=Math.ceil(fR.length/PP);
+  if(tot<=1){document.getElementById('pg').innerHTML='';return;}
+  let h=`<button class="pb" onclick="gp(${pg-1})" ${pg===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=tot;i++){if(i===1||i===tot||Math.abs(i-pg)<=2)h+=`<button class="pb ${i===pg?'act':''}" onclick="gp(${i})">${i}</button>`;else if(Math.abs(i-pg)===3)h+=`<span style="color:var(--text-muted);padding:0 4px">…</span>`;}
+  h+=`<button class="pb" onclick="gp(${pg+1})" ${pg===tot?'disabled':''}>›</button>`;
+  document.getElementById('pg').innerHTML=h;
 }
 
-function renderPaginacao() {
-  const total = Math.ceil(filteredRows.length/ROWS_PER_PAGE);
-  if(total<=1){ document.getElementById('pagination').innerHTML=''; return; }
-  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
-  for(let i=1;i<=total;i++){
-    if(i===1||i===total||Math.abs(i-currentPage)<=2) html+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-    else if(Math.abs(i-currentPage)===3) html+=`<span style="color:var(--text-muted);padding:0 4px">…</span>`;
-  }
-  html+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>›</button>`;
-  document.getElementById('pagination').innerHTML = html;
-}
+function gp(p){const t=Math.ceil(fR.length/PP);if(p<1||p>t)return;pg=p;render();document.querySelector('.ts').scrollTop=0;}
+function resetCd(){cSec=RMS/1000;clearInterval(cInt);cInt=setInterval(()=>{cSec--;if(cSec<=0){clearInterval(cInt);load();return;}const m=Math.floor(cSec/60),s=cSec%60;document.getElementById('ct').textContent=`${m}:${String(s).padStart(2,'0')}`;document.getElementById('cf').style.width=(cSec/(RMS/1000)*100)+'%';},1000);}
+function toast(msg,tipo=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(tipo?' '+tipo:'');setTimeout(()=>t.className='toast',3000);}
 
-function goPage(p) {
-  const total=Math.ceil(filteredRows.length/ROWS_PER_PAGE);
-  if(p<1||p>total) return;
-  currentPage=p; renderTabela();
-  document.querySelector('.table-scroll').scrollTop=0;
-}
-
-function resetCountdown() {
-  countdownSec=REFRESH_MS/1000;
-  clearInterval(countdownInt);
-  countdownInt=setInterval(()=>{
-    countdownSec--;
-    if(countdownSec<=0){ clearInterval(countdownInt); fetchDados(); return; }
-    const min=Math.floor(countdownSec/60), sec=countdownSec%60;
-    document.getElementById('countdown-timer').textContent=`${min}:${String(sec).padStart(2,'0')}`;
-    document.getElementById('countdown-fill').style.width=(countdownSec/(REFRESH_MS/1000)*100)+'%';
-  },1000);
-}
-
-function mostrarToast(msg, tipo='') {
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast show'+(tipo?' '+tipo:'');
-  setTimeout(()=>t.className='toast',3000);
-}
-
-fetchDados();
+load();
 </script>
 </body>
 </html>
