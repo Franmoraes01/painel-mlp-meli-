@@ -1,0 +1,31 @@
+name: Scheduler Dashboard Meli/MLP
+
+on:
+  schedule:
+    - cron: '* * * * *'   # a cada 1 minuto
+  workflow_dispatch:        # permite rodar manualmente
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: pip install google-cloud-bigquery pandas requests google-auth
+
+      - name: Configurar credenciais GCP
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/gcp_credentials.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp_credentials.json" >> $GITHUB_ENV
+
+      - name: Executar scheduler (rodada única)
+        run: python scheduler_action.py --project meli-bi-data
