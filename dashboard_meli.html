@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Meli — Monitoramento de Pacotes</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #FFE600;
+    --yellow-dim: #CCB800;
+    --bg: #0A0A0A;
+    --surface: #111111;
+    --surface2: #1A1A1A;
+    --border: #2A2A2A;
+    --text: #F0F0F0;
+    --text-dim: #888;
+    --text-muted: #444;
+    --green: #00E676;
+    --red: #FF3D57;
+    --blue: #2979FF;
+    --orange: #FF6D00;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--yellow);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-badge { background: var(--yellow); color: #000; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 4px; letter-spacing: 1px; }
+  .logo-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .update-info { font-size: 11px; color: var(--text-dim); text-align: right; line-height: 1.6; }
+  .update-info span { color: var(--yellow); }
+  .countdown { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); }
+  .countdown-bar { width: 80px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .countdown-fill { height: 100%; background: var(--yellow); transition: width 1s linear; border-radius: 2px; }
+  .btn { background: transparent; border: 1px solid var(--yellow); color: var(--yellow); font-family: 'DM Mono', monospace; font-size: 11px; padding: 6px 14px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+  .btn:hover { background: var(--yellow); color: #000; }
+
+  main { padding: 28px 32px; max-width: 1600px; margin: 0 auto; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; animation: fadeUp 0.4s ease both; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .kpi-card.yellow::before { background: var(--yellow); }
+  .kpi-card.green::before  { background: var(--green); }
+  .kpi-card.blue::before   { background: var(--blue); }
+  .kpi-card.orange::before { background: var(--orange); }
+  .kpi-card.red::before    { background: var(--red); }
+  .kpi-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+  .kpi-value { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .kpi-card.yellow .kpi-value { color: var(--yellow); }
+  .kpi-card.green .kpi-value  { color: var(--green); }
+  .kpi-card.blue .kpi-value   { color: var(--blue); }
+  .kpi-card.orange .kpi-value { color: var(--orange); }
+  .kpi-card.red .kpi-value    { color: var(--red); }
+  .kpi-sub { font-size: 11px; color: var(--text-muted); }
+
+  .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  .filter-input, .filter-select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; padding: 7px 12px; border-radius: 6px; outline: none; transition: border-color 0.2s; min-width: 160px; }
+  .filter-input:focus, .filter-select:focus { border-color: var(--yellow); }
+  .filter-select option { background: var(--surface2); }
+  .filters-right { margin-left: auto; display: flex; align-items: flex-end; gap: 8px; }
+  .badge-count { background: var(--surface2); border: 1px solid var(--border); padding: 7px 14px; border-radius: 6px; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .badge-count span { color: var(--yellow); font-weight: 600; }
+
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .table-header-bar { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .table-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+  .table-scroll { overflow-x: auto; max-height: calc(100vh - 380px); overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead { position: sticky; top: 0; z-index: 10; }
+  th { background: var(--surface2); padding: 10px 14px; text-align: left; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-dim); border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; transition: color 0.15s; }
+  th:hover { color: var(--yellow); }
+  th.sort-asc::after  { content: ' ▲'; color: var(--yellow); }
+  th.sort-desc::after { content: ' ▼'; color: var(--yellow); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,230,0,0.03); }
+
+  .pedido-cell { font-weight: 500; color: var(--yellow); }
+  .desc-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; color: var(--text-dim); }
+  .valor-cell { color: var(--green); }
+
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; white-space: nowrap; }
+  .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .s-delivered { background: rgba(0,230,118,0.12); color: var(--green); }
+  .s-delivered::before { background: var(--green); }
+  .s-transit   { background: rgba(41,121,255,0.12); color: var(--blue); }
+  .s-transit::before   { background: var(--blue); }
+  .s-pending   { background: rgba(255,109,0,0.12); color: var(--orange); }
+  .s-pending::before   { background: var(--orange); }
+  .s-error     { background: rgba(255,61,87,0.12);  color: var(--red); }
+  .s-error::before     { background: var(--red); }
+  .s-default   { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+  .s-default::before   { background: var(--text-muted); }
+
+  .just-text { background: rgba(255,230,0,0.06); border: 1px solid rgba(255,230,0,0.2); border-radius: 4px; padding: 4px 8px; font-size: 11px; color: var(--yellow-dim); max-width: 220px; overflow: hidden; text-overflow: ellipsis; display: block; }
+  .just-time { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .just-empty { color: var(--text-muted); font-size: 11px; font-style: italic; }
+
+  .state-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; color: var(--text-dim); }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px; border-top: 1px solid var(--border); }
+  .page-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); font-family: 'DM Mono', monospace; font-size: 12px; padding: 5px 12px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+  .page-btn:hover, .page-btn.active { background: var(--yellow); color: #000; border-color: var(--yellow); }
+  .page-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface); border: 1px solid var(--yellow); color: var(--text); font-size: 12px; padding: 12px 20px; border-radius: 8px; z-index: 999; opacity: 0; transform: translateY(12px); transition: all 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* server config banner */
+  .config-banner { background: rgba(255,109,0,0.1); border: 1px solid var(--orange); border-radius: 8px; padding: 12px 20px; margin-bottom: 20px; font-size: 12px; color: var(--orange); display: none; }
+  .config-banner.show { display: flex; align-items: center; gap: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-badge">MELI</span>
+    <span class="logo-title">Monitoramento de Pacotes</span>
+  </div>
+  <div class="header-right">
+    <div class="countdown">
+      <span>próx. atualização</span>
+      <div class="countdown-bar"><div class="countdown-fill" id="countdown-fill"></div></div>
+      <span id="countdown-timer">5:00</span>
+    </div>
+    <div class="update-info">Atualizado em <span id="last-update">—</span></div>
+    <button class="btn" onclick="forcarAtualizacao()">↺ Atualizar</button>
+  </div>
+</header>
+
+<main>
+  <div class="config-banner" id="config-banner">
+    ⚠ Servidor local não encontrado. Verifique se o <strong>server.py</strong> está rodando em <span id="server-url-display"></span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card yellow" style="animation-delay:.05s"><div class="kpi-label">Total Pacotes</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">no período</div></div>
+    <div class="kpi-card green"  style="animation-delay:.10s"><div class="kpi-label">Entregues</div><div class="kpi-value" id="kpi-entregues">—</div><div class="kpi-sub">status delivered</div></div>
+    <div class="kpi-card blue"   style="animation-delay:.15s"><div class="kpi-label">Em Trânsito</div><div class="kpi-value" id="kpi-transito">—</div><div class="kpi-sub">em rota</div></div>
+    <div class="kpi-card orange" style="animation-delay:.20s"><div class="kpi-label">Pendentes</div><div class="kpi-value" id="kpi-pendentes">—</div><div class="kpi-sub">aguardando</div></div>
+    <div class="kpi-card red"    style="animation-delay:.25s"><div class="kpi-label">Com Justificativa</div><div class="kpi-value" id="kpi-just">—</div><div class="kpi-sub">preenchidas pelo MLP</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <span class="filter-label">Buscar</span>
+      <input class="filter-input" id="filter-search" type="text" placeholder="Pedido, descrição, categoria..." oninput="aplicarFiltros()">
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      <select class="filter-select" id="filter-status" onchange="aplicarFiltros()"><option value="">Todos</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Sub-Status</span>
+      <select class="filter-select" id="filter-substatus" onchange="aplicarFiltros()"><option value="">Todos</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Justificativa</span>
+      <select class="filter-select" id="filter-just" onchange="aplicarFiltros()">
+        <option value="">Todas</option>
+        <option value="sim">Com justificativa</option>
+        <option value="nao">Sem justificativa</option>
+      </select>
+    </div>
+    <div class="filters-right">
+      <div class="badge-count">Exibindo <span id="count-filtered">0</span> de <span id="count-total">0</span></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header-bar">
+      <span class="table-title">Pacotes do Período</span>
+      <span style="font-size:11px;color:var(--text-muted)">Hoje + Ontem</span>
+    </div>
+    <div class="table-scroll">
+      <table id="main-table">
+        <thead>
+          <tr>
+            <th onclick="sortBy('PEDIDO')">Pedido</th>
+            <th onclick="sortBy('DESCRICAO')">Descrição</th>
+            <th onclick="sortBy('CATEGORIA')">Categoria</th>
+            <th onclick="sortBy('SELLER')">Seller</th>
+            <th onclick="sortBy('VALOR_REAL')">Valor R$</th>
+            <th onclick="sortBy('VALOR_USD')">Valor US$</th>
+            <th onclick="sortBy('EXCHANGE_POINT')">Exchange Point</th>
+            <th onclick="sortBy('Status')">Status</th>
+            <th onclick="sortBy('Sub_Status')">Sub-Status</th>
+            <th onclick="sortBy('Data_Ultima_Movimentacao')">Última Movimentação</th>
+            <th>Justificativa MLP</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr><td colspan="11"><div class="state-overlay"><div class="spinner"></div><span>Carregando...</span></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIGURAÇÃO — altere o IP/porta se necessário ──────────────
+const SERVER_URL   = 'http://localhost:5000';
+const REFRESH_MS   = 5 * 60 * 1000;
+const ROWS_PER_PAGE = 50;
+
+document.getElementById('server-url-display').textContent = SERVER_URL;
+
+let allRows = [], filteredRows = [], sortCol = '', sortDir = 'asc', currentPage = 1;
+let countdownSec = REFRESH_MS / 1000, countdownInt = null;
+
+function statusClass(s) {
+  s = (s||'').toLowerCase();
+  if (s.includes('delivered') || s.includes('entregue')) return 's-delivered';
+  if (s.includes('transit') || s.includes('route') || s.includes('rota')) return 's-transit';
+  if (s.includes('pending') || s.includes('waiting') || s.includes('aguard')) return 's-pending';
+  if (s.includes('error') || s.includes('problem') || s.includes('damage')) return 's-error';
+  return 's-default';
+}
+
+function fmt(val, prefix) {
+  if (val === '' || val == null) return '—';
+  const n = parseFloat(val);
+  if (isNaN(n)) return val;
+  return prefix + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function fmtDate(val) {
+  if (!val) return '—';
+  try { const d = new Date(val); return isNaN(d) ? val : d.toLocaleString('pt-BR'); } catch { return val; }
+}
+
+async function fetchDados() {
+  try {
+    const res  = await fetch(`${SERVER_URL}/api/dados`);
+    if (!res.ok) throw new Error(res.status);
+    const json = await res.json();
+    allRows    = json.rows || [];
+    document.getElementById('last-update').textContent = json.atualizado_em || '—';
+    document.getElementById('config-banner').classList.remove('show');
+    popularFiltros();
+    aplicarFiltros();
+    atualizarKPIs();
+    resetCountdown();
+  } catch(e) {
+    document.getElementById('config-banner').classList.add('show');
+    mostrarToast('Erro ao conectar ao servidor local.');
+  }
+}
+
+async function forcarAtualizacao() {
+  mostrarToast('Atualizando...');
+  try { await fetch(`${SERVER_URL}/api/forcar_atualizacao`, {method:'POST'}); } catch {}
+  await fetchDados();
+}
+
+function atualizarKPIs() {
+  const total     = allRows.length;
+  const entregues = allRows.filter(r=>(r.Status||'').toLowerCase().includes('delivered')).length;
+  const transito  = allRows.filter(r=>{const s=(r.Status||'').toLowerCase(); return s.includes('transit')||s.includes('route');}).length;
+  const pendentes = allRows.filter(r=>{const s=(r.Status||'').toLowerCase(); return s.includes('pending')||s.includes('waiting');}).length;
+  const comJust   = allRows.filter(r=>r.JUSTIFICATIVA && r.JUSTIFICATIVA.texto).length;
+  document.getElementById('kpi-total').textContent     = total;
+  document.getElementById('kpi-entregues').textContent = entregues;
+  document.getElementById('kpi-transito').textContent  = transito;
+  document.getElementById('kpi-pendentes').textContent = pendentes;
+  document.getElementById('kpi-just').textContent      = comJust;
+}
+
+function popularFiltros() {
+  const statuses  = [...new Set(allRows.map(r=>r.Status).filter(Boolean))].sort();
+  const substs    = [...new Set(allRows.map(r=>r.Sub_Status).filter(Boolean))].sort();
+  const selS = document.getElementById('filter-status');
+  const selSS= document.getElementById('filter-substatus');
+  const curS = selS.value, curSS = selSS.value;
+  selS.innerHTML  = '<option value="">Todos</option>';
+  selSS.innerHTML = '<option value="">Todos</option>';
+  statuses.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; if(s===curS) o.selected=true; selS.appendChild(o); });
+  substs.forEach(s=>  { const o=document.createElement('option'); o.value=s; o.textContent=s; if(s===curSS) o.selected=true; selSS.appendChild(o); });
+}
+
+function aplicarFiltros() {
+  const search = document.getElementById('filter-search').value.toLowerCase();
+  const status = document.getElementById('filter-status').value;
+  const sub    = document.getElementById('filter-substatus').value;
+  const just   = document.getElementById('filter-just').value;
+  filteredRows = allRows.filter(r => {
+    if (search && ![r.PEDIDO,r.DESCRICAO,r.CATEGORIA,r.SELLER,r.EXCHANGE_POINT].some(v=>(v||'').toLowerCase().includes(search))) return false;
+    if (status && r.Status !== status) return false;
+    if (sub    && r.Sub_Status !== sub) return false;
+    if (just==='sim' && !(r.JUSTIFICATIVA && r.JUSTIFICATIVA.texto)) return false;
+    if (just==='nao' &&  (r.JUSTIFICATIVA && r.JUSTIFICATIVA.texto)) return false;
+    return true;
+  });
+  if (sortCol) aplicarSort();
+  currentPage = 1;
+  renderTabela();
+  document.getElementById('count-filtered').textContent = filteredRows.length;
+  document.getElementById('count-total').textContent    = allRows.length;
+}
+
+function sortBy(col) {
+  sortDir = sortCol===col ? (sortDir==='asc'?'desc':'asc') : 'asc';
+  sortCol = col;
+  document.querySelectorAll('th').forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+    if(th.getAttribute('onclick')===`sortBy('${col}')`) th.classList.add(sortDir==='asc'?'sort-asc':'sort-desc');
+  });
+  aplicarSort(); renderTabela();
+}
+
+function aplicarSort() {
+  filteredRows.sort((a,b)=>{
+    let va=a[sortCol]||'', vb=b[sortCol]||'';
+    if(!isNaN(parseFloat(va))&&!isNaN(parseFloat(vb))){ va=parseFloat(va); vb=parseFloat(vb); }
+    else { va=String(va).toLowerCase(); vb=String(vb).toLowerCase(); }
+    return va<vb ? (sortDir==='asc'?-1:1) : va>vb ? (sortDir==='asc'?1:-1) : 0;
+  });
+}
+
+function renderTabela() {
+  const tbody = document.getElementById('table-body');
+  if (!filteredRows.length) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="state-overlay"><span style="font-size:36px;opacity:.4">📦</span><span>Nenhum pacote encontrado</span></div></td></tr>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+  const start = (currentPage-1)*ROWS_PER_PAGE;
+  const slice = filteredRows.slice(start, start+ROWS_PER_PAGE);
+  tbody.innerHTML = slice.map(r => {
+    const j = r.JUSTIFICATIVA || {};
+    const justHtml = j.texto
+      ? `<div class="just-text" title="${j.texto}">${j.texto}</div><div class="just-time">${j.atualizado_em||''}</div>`
+      : `<span class="just-empty">—</span>`;
+    return `<tr>
+      <td class="pedido-cell">${r.PEDIDO||'—'}</td>
+      <td><div class="desc-cell" title="${r.DESCRICAO||''}">${r.DESCRICAO||'—'}</div></td>
+      <td>${r.CATEGORIA||'—'}</td>
+      <td>${r.SELLER||'—'}</td>
+      <td class="valor-cell">${fmt(r.VALOR_REAL,'R$ ')}</td>
+      <td class="valor-cell">${fmt(r.VALOR_USD,'US$ ')}</td>
+      <td>${r.EXCHANGE_POINT||'—'}</td>
+      <td><span class="status-badge ${statusClass(r.Status)}">${r.Status||'—'}</span></td>
+      <td><span class="status-badge ${statusClass(r.Sub_Status)}">${r.Sub_Status||'—'}</span></td>
+      <td>${fmtDate(r.Data_Ultima_Movimentacao)}</td>
+      <td>${justHtml}</td>
+    </tr>`;
+  }).join('');
+  renderPaginacao();
+}
+
+function renderPaginacao() {
+  const total = Math.ceil(filteredRows.length/ROWS_PER_PAGE);
+  if (total<=1) { document.getElementById('pagination').innerHTML=''; return; }
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=total;i++) {
+    if(i===1||i===total||Math.abs(i-currentPage)<=2) html+=`<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    else if(Math.abs(i-currentPage)===3) html+=`<span style="color:var(--text-muted);padding:0 4px">…</span>`;
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>›</button>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) {
+  const total = Math.ceil(filteredRows.length/ROWS_PER_PAGE);
+  if(p<1||p>total) return;
+  currentPage = p;
+  renderTabela();
+  document.querySelector('.table-scroll').scrollTop = 0;
+}
+
+function resetCountdown() {
+  countdownSec = REFRESH_MS/1000;
+  clearInterval(countdownInt);
+  countdownInt = setInterval(()=>{
+    countdownSec--;
+    if(countdownSec<=0){ clearInterval(countdownInt); fetchDados(); return; }
+    const min=Math.floor(countdownSec/60), sec=countdownSec%60;
+    document.getElementById('countdown-timer').textContent = `${min}:${String(sec).padStart(2,'0')}`;
+    document.getElementById('countdown-fill').style.width = (countdownSec/(REFRESH_MS/1000)*100)+'%';
+  }, 1000);
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+fetchDados();
+</script>
+</body>
+</html>
